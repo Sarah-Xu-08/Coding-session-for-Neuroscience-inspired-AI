@@ -1,0 +1,17 @@
+{
+  "url": "https://github.com/mrochk/pettingzoo-dilemmas",
+  "commit": "f42dfe8516f5d1290d9076e2563e99f2770d46bf",
+  "files_sha256": {
+    "pettingzoo_dilemmas/__init__.py": "08a1ff2875e79d9ee1fc598e7a0afe43ba3826a6392b42c1ed577c2e70fcc28b",
+    "pettingzoo_dilemmas/matching_pennies/env/matching_pennies.py": "054ec136d94b7382914748c026b407a10475dc7c67752ee2422a30cc8cc5c747",
+    "pettingzoo_dilemmas/matching_pennies/matching_pennies_v0.py": "d018d35593b09f89926b3fb2af960929c7f40cd4e75ebee2853edc9228ea2c60",
+    "pettingzoo_dilemmas/matrix_game/env/matrix_game.py": "2cefd9c184ac556cd8a4710592d7dd4dc3c6891949e81564702a1570b338258c",
+    "pettingzoo_dilemmas/matrix_game/matrix_game_v0.py": "9e8e979f266f4c4ea660972b8fa18b8229f2882d76a75f5e31c71a69cd6a95c4",
+    "pettingzoo_dilemmas/prisoners_dilemma/env/prisoners_dilemma.py": "bbb41dece6f6679453f807af765af2a05a3b317adfb733fbf07d33172926a87c",
+    "pettingzoo_dilemmas/prisoners_dilemma/prisoners_dilemma_v0.py": "ea3b645d386d2fc9584b949b92fc8b4da2988636f35715ed4eaa3b8c2a21cb8c",
+    "pettingzoo_dilemmas/stag_hunt/env/stag_hunt.py": "2550a6ab82b9b1fcdf4c7b7fc242a57e88670c2b3f975be15d188155d797edb3",
+    "pettingzoo_dilemmas/stag_hunt/stag_hunt_v0.py": "cd846bcdabb794c15ae22a532931430dbbceabc3c760558b75303e57449e2acf",
+    "LICENSE": "b2c87bf30459b300f48ee33b745f73da4f292d8bbf05616bfe4059049a8e3a42"
+  },
+  "note": "Unchanged source extracted from the supplied notebook. See LICENSE."
+}

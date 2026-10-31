@@ -1,0 +1,7 @@
+{
+  "source_notebook": "chapter3_rl_cafe_highway_social_games.ipynb",
+  "source_sha256": "1ebbec7466322bab512ccc57d9c64209b476553174c01918c2a184b444b8d8c8",
+  "upstream_games_commit": "f42dfe8516f5d1290d9076e2563e99f2770d46bf",
+  "cafe": "Synthetic teaching environment from the supplied notebook; no market data.",
+  "figures": "Generated from repository code and actual environment payoff matrices."
+}

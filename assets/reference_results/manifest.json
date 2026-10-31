@@ -1,0 +1,57 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "python": "3.11.18",
+  "versions": {
+    "numpy": "1.26.4",
+    "torch": "2.5.1",
+    "gymnasium": "1.2.3",
+    "highway-env": "1.10.2",
+    "pettingzoo": "1.25.0",
+    "matplotlib": "3.9.4",
+    "pandas": "2.2.3"
+  },
+  "generated_utc": "2026-10-31T07:35:25Z",
+  "cafe": {
+    "episodes": 60000,
+    "seed": 0,
+    "evaluation_seeds": [
+      20000,
+      20099
+    ]
+  },
+  "highway": {
+    "steps_per_method": 2000,
+    "training_seeds": [
+      0
+    ],
+    "development_seeds": [
+      81000,
+      81001,
+      81002
+    ],
+    "heldout_seeds": [
+      91000,
+      91009
+    ]
+  },
+  "reference_dqn": {
+    "source": "supplied notebook checkpoint",
+    "training_steps": 20000,
+    "training_seed": 0,
+    "local_evaluation_seeds": [
+      92000,
+      92019
+    ],
+    "local_mean_metrics": {
+      "return_": 19.41500237168023,
+      "collision": 0.1,
+      "mean_speed_m_s": 20.59186634606464,
+      "steps": 28.25,
+      "lane_change_requests": 12.65
+    }
+  },
+  "generation_seconds": 8.4732011660235,
+  "reused_training_files_for_checkpoint_reevaluation": true,
+  "limitations": "One training seed. Short comparison is for teaching, not algorithm superiority."
+}

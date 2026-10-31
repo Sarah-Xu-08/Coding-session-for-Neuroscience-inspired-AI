@@ -1,0 +1,44 @@
+{
+  "seed": 0,
+  "steps": 20000,
+  "train_seconds": 292.27896483099903,
+  "config": {
+    "lanes_count": 3,
+    "vehicles_count": 18,
+    "duration": 30,
+    "observation": {
+      "type": "Kinematics",
+      "vehicles_count": 5,
+      "features": [
+        "presence",
+        "x",
+        "y",
+        "vx",
+        "vy"
+      ],
+      "absolute": false,
+      "normalize": false,
+      "clip": false,
+      "order": "sorted"
+    },
+    "action": {
+      "type": "DiscreteMetaAction"
+    },
+    "simulation_frequency": 5,
+    "policy_frequency": 1
+  },
+  "evaluation": {
+    "return_": 19.41500237168023,
+    "collision": 0.1,
+    "mean_speed_m_s": 20.59186634606464,
+    "steps": 28.25,
+    "lane_change_requests": 12.65
+  },
+  "evaluation_seed_range": [
+    92000,
+    92019
+  ],
+  "evaluation_episodes": 20,
+  "origin": "Checkpoint embedded in the supplied TA notebook; original training host unspecified.",
+  "sha256": "f3a7042f23d3a768d87ea81161678f16217ad43725b1ffc6095f40c86f52f6f0"
+}
