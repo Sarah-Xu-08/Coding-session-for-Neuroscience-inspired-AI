@@ -17,6 +17,7 @@ dependencies:
       - highway-env==1.10.2
       - pygame==2.6.1
       - pettingzoo==1.25.0
+      - mpe2==0.0.1
       - jupyterlab==4.3.5
       - ipykernel==6.29.5
       - ipywidgets==8.1.5

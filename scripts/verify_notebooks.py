@@ -25,7 +25,7 @@ def validate_display_outputs(notebook,expect_widgets=True):
             for mime in output.get('data',{}):formats[mime]=formats.get(mime,0)+1
             if output.get('output_type')=='stream' and 'non-interactive' in output.get('text',''):
                 warnings.append(output['text'])
-    assert formats.get('image/png',0)>=7, 'Expected inline charts for all four tasks.'
+    assert formats.get('image/png',0)>=6, 'Expected the cafe, highway, dilemma and spread charts.'
     assert formats.get('image/gif',0)>=1, 'Expected a displayed highway animation.'
     if expect_widgets:
         assert formats.get('application/vnd.jupyter.widget-view+json',0)>=3, 'Expected all three interactive controls.'

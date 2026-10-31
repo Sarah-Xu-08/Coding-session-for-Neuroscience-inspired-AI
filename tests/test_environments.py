@@ -35,8 +35,8 @@ def test_cafe_rejects_illegal_actions():
 def test_cafe_and_social_training_use_injected_rules(definitions):
     cafe,history=train_cafe(definitions['rules'],episodes=20,seed=0)
     assert len(history)==20 and cafe.visits.sum()==160
-    a,b,history=train_social('stag_hunt',definitions['rules'],episodes=3,nrounds=4)
-    assert len(history)==3 and len(social_match('stag_hunt',a,b,nrounds=4))==4
+    a,b,history=train_social('prisoners_dilemma',definitions['rules'],episodes=3,nrounds=4)
+    assert len(history)==3 and len(social_match('prisoners_dilemma',a,b,nrounds=4))==4
 
 
 def test_highway_features_and_rgb_rendering():
@@ -76,13 +76,51 @@ def test_cafe_buttons_progress_close_and_reset():
 def test_social_controls_callbacks(definitions,caplog):
     import logging
     import matplotlib.pyplot as plt
-    from rl_lab.practice import dilemma_controls,stag_controls
+    from rl_lab.practice import dilemma_controls,spread_controls
     with caplog.at_level(logging.WARNING,logger='traitlets'):
         controls=dilemma_controls(definitions['tit_for_tat'])
         controls['a'].value=definitions['tit_for_tat']
         controls['b'].value='always_defect'
         controls['run'].click()
-        stag=stag_controls(definitions['expected_payoffs'])
-        stag['slider'].value=.9
+        spread=spread_controls(definitions['team_reward'])
+        spread['slider'].value=20
+        spread['strategy'].value='assignment'
+        spread['slider'].value=spread['slider'].max
     assert not [record for record in caplog.records if record.name=='traitlets' and record.levelno>=logging.WARNING]
     plt.close('all')
+
+
+@pytest.mark.parametrize('seed', [0, 7, 2026])
+def test_spread_rewards_match_coverage_even_during_collisions(definitions, seed):
+    from rl_lab.spread import make_spread, reset_spread, spread_positions
+    env=make_spread(max_cycles=5, render=True)
+    try:
+        observations,_=reset_spread(env,seed=seed,layout='random')
+        assert all(obs.shape==(18,) for obs in observations.values())
+        # Intentionally overlap agent bodies; there must still be no local penalty.
+        for i,agent in enumerate(env.unwrapped.world.agents):
+            agent.state.p_pos=np.array([i*.04, i*.03])
+        for step in range(5):
+            names=list(env.agents)
+            _,rewards,terminated,truncated,_=env.step({name:step%5 for name in names})
+            positions,landmarks=spread_positions(env)
+            expected=definitions['team_reward'](positions,landmarks)
+            assert len(rewards)==3
+            assert all(np.isclose(rewards[name],expected) for name in names)
+        assert all(truncated.values()) and not any(terminated.values())
+        assert env.render().shape[-1]==3
+    finally:
+        env.close()
+
+
+def test_spread_controllers_start_from_the_same_world():
+    from rl_lab.spread import spread_rollout
+    nearest=spread_rollout('nearest')
+    assigned=spread_rollout('assignment')
+    np.testing.assert_equal(nearest['positions'][0],assigned['positions'][0])
+    np.testing.assert_equal(nearest['landmarks'],assigned['landmarks'])
+    assert len(nearest['history'])==len(assigned['history'])==60
+    assert assigned['history'].team_reward.sum()>nearest['history'].team_reward.sum()
+    for rollout in [nearest,assigned]:
+        for name in ['agent_0','agent_1','agent_2']:
+            np.testing.assert_allclose(rollout['history'][f'reward_{name}'],rollout['history'].team_reward)

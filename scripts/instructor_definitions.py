@@ -15,7 +15,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def load():
     namespace=dict(np=np,torch=torch,nn=nn,copy=copy,random_argmax=random_argmax)
     wanted={'epsilon_greedy','td_target','q_update','dqn_targets','dqn_loss',
-            'QNetwork','ReplayBuffer','DQNAgent','tit_for_tat','expected_payoffs'}
+            'QNetwork','ReplayBuffer','DQNAgent','tit_for_tat','team_reward'}
     notebook=nbformat.read(ROOT/'notebooks/chapter3_instructor.ipynb',as_version=4)
     for cell in notebook.cells:
         if cell.cell_type!='code':continue

@@ -4,10 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 #@title Existing-game adapters and small independent Q-learning agents
 def make_social_game(name,nrounds=20):
-    from pettingzoo_dilemmas import prisoners_dilemma_v0,stag_hunt_v0
-    constructor={'prisoners_dilemma':prisoners_dilemma_v0.env,
-                 'stag_hunt':stag_hunt_v0.env}[name]
-    return constructor(nrounds=nrounds)
+    from pettingzoo_dilemmas import prisoners_dilemma_v0
+    if name != 'prisoners_dilemma':
+        raise ValueError('This lesson uses Prisoner\'s Dilemma; Simple Spread is in rl_lab.spread.')
+    return prisoners_dilemma_v0.env(nrounds=nrounds)
 
 def read_payoffs(name):
     """Read all four payoff pairs by stepping the existing upstream environment."""
@@ -24,7 +24,7 @@ def read_payoffs(name):
 
 def plot_payoffs(name):
     matrix=read_payoffs(name)
-    names=['Cooperate','Defect'] if name=='prisoners_dilemma' else ['Stag','Hare']
+    names=['Cooperate','Defect']
     fig,ax=plt.subplots(figsize=(5,4),layout='constrained')
     ax.imshow(matrix.sum(axis=-1),cmap='Blues',alpha=.5)
     for a in range(2):
@@ -57,8 +57,8 @@ class SocialQ:
 
 def strategy_action(policy,state,epsilon=0.):
     if isinstance(policy,SocialQ):return policy.act(state,epsilon)
-    if policy in ['always_cooperate','always_stag']:return 0
-    if policy in ['always_defect','always_hare']:return 1
+    if policy == 'always_cooperate':return 0
+    if policy == 'always_defect':return 1
     if callable(policy):return int(policy(state[2]))
     raise ValueError('Unknown social strategy: '+str(policy))
 
@@ -102,12 +102,12 @@ def train_social(name,rules,episodes=500,opponent='learner',seed=0,
     return a,b,pd.DataFrame(logs)
 
 def plot_social(history,match,name):
-    labels=['Cooperate','Defect'] if name=='prisoners_dilemma' else ['Stag','Hare']
+    labels=['Cooperate','Defect']
     fig,axes=plt.subplots(1,2,figsize=(10,3.5),layout='constrained')
     sm=history.cooperation.rolling(min(50,len(history)),min_periods=1).mean()
     axes[0].plot(history.episode,sm)
     axes[0].set(xlabel='Training sessions',ylabel='Fraction of rounds',ylim=(-.02,1.02),
-                title='Mutual cooperation / stag choices · rolling mean')
+                title='Mutual cooperation · rolling mean')
     counts=np.zeros((2,2))
     for a,b in zip(match.a,match.b):counts[a,b]+=1
     counts/=len(match)
@@ -117,21 +117,3 @@ def plot_social(history,match,name):
     axes[1].set_xticks([0,1],labels);axes[1].set_yticks([0,1],labels)
     axes[1].set(xlabel='Player B',ylabel='Player A',title='One greedy evaluation session')
     plt.show()
-
-def plot_stag_threshold(matrix,expected_payoffs,p_marker=None,save_path=None):
-    p=np.linspace(0,1,101)
-    scores=np.array([expected_payoffs(matrix,prob) for prob in p])
-    fig,ax=plt.subplots(figsize=(7,3.5),layout='constrained')
-    ax.plot(p,scores[:,0],label='Choose stag')
-    ax.plot(p,scores[:,1],label='Choose hare')
-    ax.set(xlabel='Probability partner chooses stag',ylabel='Expected immediate payoff',
-           title='Stag Hunt · best response depends on expectations')
-    if p_marker is not None:
-        ax.axvline(p_marker,color='#64748b',ls='--',label=f'Your p={p_marker:.2f}')
-    ax.legend()
-    if save_path is not None:fig.savefig(save_path,dpi=180)
-    plt.show()
-    r=matrix[:,:,0]
-    threshold=(r[1,1]-r[0,1])/(r[0,0]-r[0,1]-r[1,0]+r[1,1])
-    print(f'In this upstream payoff matrix, stag is a best response when p ≥ {threshold:.3f}.')
-    return threshold

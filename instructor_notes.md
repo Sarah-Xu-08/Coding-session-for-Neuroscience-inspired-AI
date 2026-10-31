@@ -25,7 +25,7 @@ Use the instructor notebook; share the student workbook for active practice.
 
 | Time | What to show | Pause prompt |
 |---|---|---|
-| 00–04 | Four-task overview; observation → action → reward | What can each agent observe before acting? |
+| 00–04 | Observation → action → reward; four-task agenda | What can each agent observe before acting? |
 | 04–08 | NumPy table, row indexing, feasible-action mask | Which array axis represents actions? |
 | 08–12 | Tensor batch, linear layer, gradient and optimizer | Does a forward pass update weights? |
 | 12–17 | Café rules and two manual decisions | Which dessert should be prepared before its peak? |
@@ -35,7 +35,7 @@ Use the instructor notebook; share the student workbook for active practice.
 | 33–41 | Network shapes, exercise 3, replay, target network | Where should gradients stop? |
 | 41–46 | Matched-budget comparison and labelled reference GIF | What can this one-seed result support? |
 | 46–52 | Prisoner's Dilemma, tit-for-tat, strategy tournament | Who exploits an always-cooperating partner? |
-| 52–58 | Stag Hunt payoff matrix, exercise 5 and slider | How confident must you be that the partner chooses stag? |
+| 52–58 | Simple Spread illustration, NumPy reward and matched controllers | Why can moving away from your nearest landmark help the team? |
 | 58–60 | Exit questions and optional experiments | What stays the same from a Q-table to a network? |
 
 For a 40–45 minute video, move the detailed replay-buffer walkthrough, policy-map
@@ -78,10 +78,20 @@ cooperation gives each 3. Tit-for-tat cooperates initially, then responds to the
 previous action. It is hand-coded, not trained, and does not dominate all strategies.
 Simultaneous choices cannot inspect the partner's current-round action.
 
-**Stag Hunt:** Player A's expected payoffs are `1+9p` for stag and `5+3p` for hare.
-They are equal at `p=2/3`. Both are best responses at equality. Coordination can
-improve both payoffs without making the reward signal shared. Use the slider
-to distinguish the best response from certainty about the partner.
+**Simple Spread:** Start with the illustration: three agents choosing their own
+nearest landmark can leave two landmarks unattended. The reward instead examines
+each landmark's nearest agent. In the two-landmark example the start gives −9,
+both left gives −10, and splitting exactly across the landmarks gives 0. Narrate
+the `(agents, landmarks, coordinates)` broadcast, norm over coordinates, minimum
+over agents (`axis=0`), then sum and negate. Every agent receives this same scalar.
+`local_ratio=0.0` removes individual collision penalties; collisions still affect
+the physics. Demonstrate the actual reward dictionary before comparing controllers.
+Use the selector and Play/step controls to inspect real simulator trajectories.
+The assignment controller uses centralized global information and is hand-coded;
+do not present it as learned or decentralized coordination. Team return sums the
+shared reward over time once. An agent that stays still can benefit from another
+agent's move; this illustrates the credit-assignment problem. Shared reward does
+not require identical observations, actions, or network weights.
 
 **Optional social RL:** The state includes remaining rounds and the last joint
 action. With two learners the opponent changes during training. Fixed-horizon

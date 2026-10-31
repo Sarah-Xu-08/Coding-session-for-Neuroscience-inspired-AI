@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from rl_lab.checks import check_foundations,check_dqn,check_tit_for_tat,check_expected_payoffs
+from rl_lab.checks import check_foundations,check_dqn,check_tit_for_tat,check_team_reward
 from rl_lab.social import read_payoffs,social_match
 
 
@@ -43,9 +43,5 @@ def test_social_actions_payoffs_and_round_count(definitions):
     assert len(frame)==3
 
 
-def test_stag_threshold_and_player_perspective(definitions):
-    matrix=read_payoffs('stag_hunt');fn=definitions['expected_payoffs']
-    check_expected_payoffs(fn,matrix)
-    assert np.isclose(fn(matrix,2/3)[0],fn(matrix,2/3)[1])
-    assert np.argmax(fn(matrix,.5))==1
-    assert np.argmax(fn(matrix,.9))==0
+def test_team_reward_covers_landmarks_not_agents(definitions):
+    check_team_reward(definitions['team_reward'])

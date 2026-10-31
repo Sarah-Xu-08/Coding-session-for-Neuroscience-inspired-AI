@@ -2,9 +2,8 @@
 
 A local NumPy + PyTorch introduction to reinforcement learning, designed for a
 55–60 minute TA video on an Apple Silicon Mac. The four tasks are a dessert café,
-highway navigation, Prisoner's Dilemma, and Stag Hunt. Longer experiments are optional.
-
-![Observations, decisions and rewards in the four tasks](assets/figures/four_tasks_overview.png)
+highway navigation, Prisoner's Dilemma, and Simple Spread. Longer experiments are optional.
+Each game has its own colourful illustration at the start of its notebook section.
 
 Open **[the instructor notebook](notebooks/chapter3_instructor.ipynb)** for the recording,
 or **[the student workbook](notebooks/chapter3_student.ipynb)** for practice.
@@ -53,7 +52,10 @@ during setup was missing a HighwayEnv file.
 `environment.yml` pins the direct dependencies. `requirements-macos-arm64.lock.txt`
 records all installed pip package versions from the tested Mac. SciPy 1.14.1 was
 selected after the 1.15.3 wheel failed to load on the recording machine. The environment
-has been validated on this Mac; Windows and Google Colab adaptation are future work.
+pins MPE2 0.0.1, which shares the existing pygame 2.6.1 dependency with HighwayEnv.
+The Simple Spread activity uses the actual simulator and its parallel API.
+The environment has been validated on this Mac; Windows and Google Colab adaptation
+are future work.
 See [VALIDATION.md](VALIDATION.md) for the completed checks and their scope.
 
 ## How to use the student workbook
@@ -69,10 +71,11 @@ select or import instructor implementations.
 | 2 | Café decisions, next-hour preparation, reward versus cash profit |
 | 3 | PyTorch batch shapes, selected action values, DQN targets and Huber loss |
 | 4 | A repeated-game strategy: tit-for-tat |
-| 5 | Expected payoff and coordination risk in Stag Hunt |
+| 5 | NumPy broadcasting, pairwise distances and a shared team coverage reward |
 
 The café buttons reveal outcomes after each decision. The Prisoner's Dilemma controls
-compare strategies; the Stag Hunt slider varies the probability of partner cooperation.
+compare strategies; the Simple Spread selector, step slider and Play control show
+nearest-landmark versus centralized-assignment trajectories from the same start.
 Each has an ordinary-code alternative. Widgets need a live Jupyter kernel and do not
 run in the static GitHub preview.
 
@@ -90,7 +93,17 @@ By default the café trains live, while the highway comparison loads an actual
 recorded teaching run. To train highway agents using your functions, set
 `RUN_HIGHWAY_TRAINING = True` and rerun from setup. Changing the mode alone does
 not override that flag. `RUN_SOCIAL_TRAINING` separately enables the optional
-independent Q-learners; the core social-game strategy activities do not train agents.
+independent Prisoner's Dilemma Q-learners. The core social-game strategy activities
+and Simple Spread controllers do not train agents.
+
+Simple Spread uses `N=3`, discrete actions, a 60-step horizon, and `local_ratio=0.0`.
+Every agent receives exactly the same negative sum of nearest-agent distances per
+landmark. There are no individual reward bonuses or collision penalties; physical
+collisions still affect movement. Team return sums one shared reward over time,
+without multiplying by the number of agents. Students implement the reward with
+NumPy and compare it against actual environment rewards. The two controllers are
+hand-coded references using global positions; the assignment controller is centralized.
+They demonstrate coordination, not successful multi-agent RL training.
 
 The 2,000-step highway comparison uses equal interaction budgets for three tabular
 resolutions and DQN, with separate development and final-evaluation seeds. It is
@@ -107,7 +120,7 @@ common mistakes, rehearsal steps, and a shorter-video option.
 ```text
 notebooks/                 Instructor source and generated student workbook
 rl_lab/                    Provided simulators, plotting, controls, exercise checks
-assets/figures/             Four-task overview (PNG/SVG) and individual task panels
+assets/figures/             Four individual illustrated game diagrams (PNG and SVG)
 assets/checkpoints/         Supplied DQN and a locally trained café table
 assets/reference_results/   Measured teaching runs, evaluation CSVs and provenance
 vendor/                    Unchanged upstream social games, MIT license and hashes
@@ -174,4 +187,6 @@ See [assets/PROVENANCE.json](assets/PROVENANCE.json) for the source notebook che
 - [HighwayEnv documentation](https://highway-env.farama.org/)
 - [PyTorch DQN tutorial](https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html)
 - [PettingZoo-Dilemmas upstream](https://github.com/mrochk/pettingzoo-dilemmas)
+- [Simple Spread reward and actions](https://mpe2.farama.org/environments/simple_spread/)
+- [MPE2 0.0.1 package](https://pypi.org/project/mpe2/0.0.1/)
 - [Conda environments](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html)

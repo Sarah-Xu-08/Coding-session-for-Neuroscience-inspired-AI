@@ -28,5 +28,15 @@ def test_generated_student_has_no_solution_cells_or_outputs():
 
 
 def test_notebook_images_exist():
-    assert (ROOT/'assets/figures/four_tasks_overview.png').stat().st_size>10000
-    assert (ROOT/'assets/figures/four_tasks_overview.svg').is_file()
+    import re
+    for role in ['instructor','student']:
+        notebook=nbformat.read(ROOT/f'notebooks/chapter3_{role}.ipynb',as_version=4)
+        text='\n'.join(c.source for c in notebook.cells)
+        assert 'four_tasks_overview' not in text
+        assert 'stag_hunt' not in text and 'Stag Hunt' not in text
+        images=re.findall(r'!\[.*?\]\((\.\./assets/figures/[^)]+)\)',text)
+        assert len(images)==4
+        for image in images:
+            assert (ROOT/'notebooks'/image).stat().st_size>10000
+    for name in ['cafe','highway','prisoners_dilemma','simple_spread']:
+        assert (ROOT/f'assets/figures/task_{name}.svg').is_file()

@@ -4,7 +4,8 @@ import pandas as pd
 import ipywidgets as widgets
 from IPython.display import display, clear_output
 from .cafe import DessertCafe
-from .social import social_match, read_payoffs, plot_stag_threshold
+from .social import social_match
+from .spread import spread_rollout, plot_spread_frame, spread_bounds
 
 def cafe_controls(seed=2026):
     env=DessertCafe()
@@ -60,16 +61,24 @@ def dilemma_controls(tit_for_tat):
     display(widgets.VBox([widgets.HBox([a,b,run]),output]))
     return {'a':a,'b':b,'run':run}
 
-def stag_controls(expected_payoffs):
-    matrix=read_payoffs('stag_hunt')
-    slider=widgets.FloatSlider(value=.5,min=0,max=1,step=.05,description='Partner p:',continuous_update=False)
+def spread_controls(team_reward, nearest=None, assigned=None):
+    rollouts = {'nearest': nearest if nearest is not None else spread_rollout('nearest'),
+                'assignment': assigned if assigned is not None else spread_rollout('assignment')}
+    bounds=spread_bounds(*rollouts.values())
+    strategy=widgets.Dropdown(options=[('Everyone chooses nearest','nearest'),
+                                       ('Cover different landmarks','assignment')],
+                              value='nearest', description='Strategy:')
+    slider=widgets.IntSlider(value=0,min=0,max=min(len(r['positions']) for r in rollouts.values())-1,
+                             description='Step:',continuous_update=False)
+    play=widgets.Play(value=0,min=0,max=slider.max,interval=140,description='Play')
+    link=widgets.jslink((play,'value'),(slider,'value'))
     output=widgets.Output()
     def draw(change=None):
         with output:
             clear_output(wait=True)
-            values=expected_payoffs(matrix,slider.value)
-            print(f'Expected payoff: stag={values[0]:.2f}, hare={values[1]:.2f}')
-            plot_stag_threshold(matrix,expected_payoffs,p_marker=slider.value)
-    slider.observe(draw,names='value');draw()
-    display(widgets.VBox([slider,output]))
-    return {'slider':slider}
+            plot_spread_frame(rollouts[strategy.value],slider.value,team_reward,bounds=bounds)
+    slider.observe(draw,names='value')
+    strategy.observe(draw,names='value')
+    draw()
+    display(widgets.VBox([strategy,widgets.HBox([play,slider]),output]))
+    return {'strategy':strategy,'slider':slider,'play':play,'link':link,'rollouts':rollouts}

@@ -41,10 +41,18 @@ def check_tit_for_tat(fn):
     print('Exercise 4 passed: opening cooperation and replies to both actions.')
 
 
-def check_expected_payoffs(fn, matrix):
-    for p in [0., .25, .5, 1.]:
-        result = np.asarray(fn(matrix, p))
-        assert result.shape == (2,), 'Return one expected payoff per action, for Player A.'
-        expected = [p * matrix[a, 0, 0] + (1-p) * matrix[a, 1, 0] for a in range(2)]
-        assert np.allclose(result, expected), 'Check the player index and partner probabilities.'
-    print('Exercise 5 passed: endpoints, mixtures, shape and player perspective.')
+def check_team_reward(fn):
+    landmarks = np.array([[0., 0.], [10., 0.]])
+    cases = [(np.array([[1., 0.], [2., 0.]]), -9.),
+             (np.array([[0., 0.], [0., 0.]]), -10.),
+             (landmarks.copy(), 0.)]
+    for agents, expected in cases:
+        result = fn(agents, landmarks)
+        assert np.asarray(result).shape == (), 'Return one scalar team score, not one score per agent.'
+        assert np.isclose(result, expected), 'Measure nearest-agent distance for EACH LANDMARK, then sum and negate.'
+    assert np.isclose(fn(np.array([[0., 0.]]), np.array([[3., 4.], [0., 0.]])), -5.), 'Use Euclidean distance in both coordinates.'
+    agents = np.array([[0., 0.], [2., 1.]])
+    landmarks = np.array([[0., 1.], [2., 2.], [4., 1.]])
+    assert np.isclose(fn(agents, landmarks), -4.), 'Reduce over agents; do not reduce over landmarks.'
+    assert np.isclose(fn(agents[::-1] + 7., landmarks[::-1] + 7.), -4.), 'Agent order, landmark order and a shared translation should not change coverage.'
+    print('Exercise 5 passed: shared scalar, coverage direction, Euclidean distances and invariance.')
