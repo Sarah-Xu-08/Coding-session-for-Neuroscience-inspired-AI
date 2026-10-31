@@ -3,7 +3,9 @@
 A local NumPy + PyTorch introduction to reinforcement learning, designed for a
 55–60 minute TA video on an Apple Silicon Mac. The four tasks are a dessert café,
 highway navigation, Prisoner's Dilemma, and Simple Spread. Longer experiments are optional.
-Each game has its own colourful illustration at the start of its notebook section.
+Each game starts with a black-and-white line-art overview. Colour marks only the
+teaching focus: matching dessert/curve pairs, the controlled car, game choices,
+or coverage assignments and the shared team reward.
 
 Open **[the instructor notebook](notebooks/chapter3_instructor.ipynb)** for the recording,
 or **[the student workbook](notebooks/chapter3_student.ipynb)** for practice.
@@ -120,7 +122,7 @@ common mistakes, rehearsal steps, and a shorter-video option.
 ```text
 notebooks/                 Instructor source and generated student workbook
 rl_lab/                    Provided simulators, plotting, controls, exercise checks
-assets/figures/             Four individual illustrated game diagrams (PNG and SVG)
+assets/figures/             Four line-art game overviews (PNG) and generation prompts
 assets/checkpoints/         Supplied DQN and a locally trained café table
 assets/reference_results/   Measured teaching runs, evaluation CSVs and provenance
 vendor/                    Unchanged upstream social games, MIT license and hashes
@@ -164,10 +166,16 @@ python scripts/verify_notebooks.py --mode teaching --cached-highway --save-instr
 python scripts/build_student.py
 ```
 
-To regenerate visual assets and the measured reference runs:
+The game overviews are supplied PNG artwork generated with the built-in image tool
+using the reference style provided for this lab. The exact prompts and colour rules
+are in [assets/figures/prompts.json](assets/figures/prompts.json). They need no image
+service or API key when students run the notebook. The café overview's demand curves
+are qualitative schematics; the notebook's analytical plots use simulator data.
+The old Matplotlib illustration generator and its SVG exports have been retired.
+
+To regenerate the measured reference runs:
 
 ```bash
-python scripts/generate_figures.py
 python scripts/generate_reference_results.py
 ```
 

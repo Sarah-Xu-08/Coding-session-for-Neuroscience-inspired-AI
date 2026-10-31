@@ -17,7 +17,7 @@ versions are recorded in `requirements-macos-arm64.lock.txt`.
 | Upstream games | All bundled source hashes match the supplied manifest |
 | Simple Spread shared rewards | All three agents' actual rewards match the NumPy coverage formula, including physical overlaps, on seeds 0, 7 and 2026 |
 | Simple Spread baselines | Same initial world and 60-step budget; no learning; centralized assignment is labelled explicitly |
-| Introductory illustrations | Four separate PNG/SVG pairs, visually reviewed; inserted at each game's introduction in both notebooks |
+| Introductory illustrations | Four selective-colour line-art PNGs, visually reviewed against the supplied reference; one at each game's introduction in both notebooks |
 | Dependency consistency | `pip check` passed; MPE2 0.0.1 works with the existing pygame-based Mac environment |
 
 The maintained instructor notebook includes the default teaching outputs. The

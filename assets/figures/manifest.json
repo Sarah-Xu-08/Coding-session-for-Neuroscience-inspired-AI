@@ -1,0 +1,35 @@
+{
+  "method": "Built-in image_gen; generated PNGs copied without retouching or recompression.",
+  "style": "Black/white/grey line art with selective blue/pink highlights.",
+  "cafe_plot": "Qualitative demand schematic, not sampled or measured data.",
+  "files": {
+    "task_cafe.png": {
+      "dimensions": [
+        1672,
+        941
+      ],
+      "sha256": "908570ddd9493f01df701feb3ec3e75a5ec6519ab431f6c391d144f1c7021245"
+    },
+    "task_highway.png": {
+      "dimensions": [
+        1672,
+        941
+      ],
+      "sha256": "fc609a8ee19926dd94c7214812e00029c62ab7a6c592628d7d23e99b2e243e04"
+    },
+    "task_prisoners_dilemma.png": {
+      "dimensions": [
+        1672,
+        941
+      ],
+      "sha256": "f5a36c6b197727df16d2348952dc7017da92a1bfa5e078d0bb601934b77373b9"
+    },
+    "task_simple_spread.png": {
+      "dimensions": [
+        1672,
+        941
+      ],
+      "sha256": "04247d46fda5588edb09d0e2d561b16759f95a33689f8a81dc52d37bb4e01aa2"
+    }
+  }
+}

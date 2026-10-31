@@ -1,0 +1,5 @@
+Edit the supplied Simple Spread overview. Preserve the overall composition, white background, exact black-line cartoon style, all existing correctly spelled text, robots, landmarks, blue paths and pink shared-reward box.
+Make ONLY these two local corrections:
+1. In the RIGHT panel, the robot beside the TOP landmark L3 must have exactly ONE agent label, "C". Remove the stray "B" above that robot's antenna. Keep or neatly reposition the existing C beside that robot so it is unambiguous and does not touch the antenna. The other right-panel agents remain A at L1 and B at L2. Do not alter any labels in the LEFT panel.
+2. In the LEFT panel, each of the THREE blue arrows must have a SINGLE arrowhead pointing FROM its robot TOWARD landmark L1. Remove arrowheads near robot bodies; no double-headed arrows. Keep all three robots and their correct A, B, C labels, keep L2 and L3 empty.
+Do not add any colour to robots, flags, labels or background. Do not add or remove agents. Keep the reward equality r_A = r_B = r_C exactly. Everything else unchanged.

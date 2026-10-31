@@ -38,5 +38,3 @@ def test_notebook_images_exist():
         assert len(images)==4
         for image in images:
             assert (ROOT/'notebooks'/image).stat().st_size>10000
-    for name in ['cafe','highway','prisoners_dilemma','simple_spread']:
-        assert (ROOT/f'assets/figures/task_{name}.svg').is_file()
