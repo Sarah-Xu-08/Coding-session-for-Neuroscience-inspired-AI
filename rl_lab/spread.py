@@ -1,7 +1,8 @@
 """Real MPE2 Simple Spread with identical coverage rewards for every agent.
 
-The two controllers below are transparent teaching baselines, not learned policies.
-Both read global positions; the assignment controller is a centralized reference.
+The two fixed controllers below are transparent baselines using global positions;
+assignment is centralized. The optional MAPPO policy is trained by skrl and receives
+only each actor's own observation during execution.
 """
 import numpy as np
 import pandas as pd
@@ -66,13 +67,15 @@ def movement_action(position, velocity, target):
     return (2 if error[0] > 0 else 1) if axis == 0 else (4 if error[1] > 0 else 3)
 
 
-def spread_rollout(strategy='assignment', seed=2026, layout='clustered', steps=60):
+def spread_rollout(strategy='assignment', seed=2026, layout='clustered', steps=60, policy=None):
     env = make_spread(max_cycles=steps)
     try:
         observations, _ = reset_spread(env, seed, layout)
         names = list(env.agents)
         agents, landmarks = spread_positions(env)
-        targets = landmark_targets(agents, landmarks, strategy)
+        if strategy == 'mappo' and policy is None:
+            raise ValueError('Load a trained MAPPO policy before requesting its rollout.')
+        targets = landmark_targets(agents, landmarks, strategy) if strategy != 'mappo' else None
         positions = [agents.copy()]
         initial_reward = float(env.unwrapped.scenario.global_reward(env.unwrapped.world))
         scores = [initial_reward]
@@ -82,8 +85,12 @@ def spread_rollout(strategy='assignment', seed=2026, layout='clustered', steps=6
             if strategy == 'nearest':
                 targets = landmark_targets(agents, landmarks, strategy)
             velocities = [a.state.p_vel for a in env.unwrapped.world.agents]
-            actions = {name: movement_action(agents[i], velocities[i], landmarks[targets[i]])
-                       for i, name in enumerate(names)}
+            if strategy == 'mappo':
+                # Decentralized execution: each actor gets ONLY its own observation.
+                actions = {name: policy.act(name, observations[name]) for name in names}
+            else:
+                actions = {name: movement_action(agents[i], velocities[i], landmarks[targets[i]])
+                           for i, name in enumerate(names)}
             observations, rewards, terminated, truncated, _ = env.step(actions)
             values = np.array([rewards[name] for name in names])
             if not np.allclose(values, values[0]):
@@ -105,7 +112,8 @@ def spread_rollout(strategy='assignment', seed=2026, layout='clustered', steps=6
 def spread_bounds(*rollouts):
     extent = np.concatenate([points for rollout in rollouts for points in
                              (rollout['positions'].reshape(-1, 2), rollout['landmarks'])])
-    return extent.min(axis=0) - .28, extent.max(axis=0) + .28
+    margin = np.maximum(np.ptp(extent, axis=0) * .12, .28)
+    return extent.min(axis=0) - margin, extent.max(axis=0) + margin
 
 
 def _scene(ax, rollout, frame, trails=True, bounds=None):
@@ -124,23 +132,27 @@ def _scene(ax, rollout, frame, trails=True, bounds=None):
         if trails:
             trail = rollout['positions'][:frame + 1, i]
             ax.plot(trail[:, 0], trail[:, 1], color=COLORS[i], alpha=.6, lw=2)
-        ax.add_patch(Circle(point, .075, fc=COLORS[i], ec='white', lw=1.5, zorder=5))
-        ax.text(*point, str(i), ha='center', va='center', color='white', weight='bold', zorder=6)
+        # Fixed-size position markers remain legible if a learned agent drifts far
+        # away. They locate agents; their screen size is not a physical body size.
+        ax.scatter(*point, s=180, color=COLORS[i], edgecolors='white', linewidths=1.5, zorder=5)
+        ax.text(*point, str(i), ha='center', va='center', color='white', weight='bold', fontsize=9, zorder=6)
 
 
 def plot_spread_comparison(nearest, assigned, save_path=None):
     fig, axes = plt.subplots(1, 3, figsize=(14, 4), layout='constrained')
     bounds = spread_bounds(nearest, assigned)
+    learned = assigned['strategy'] == 'mappo'
+    second_label = 'MAPPO (skrl, learned)' if learned else 'Centralized assignment (fixed)'
     for ax, rollout, title in zip(axes[:2], [nearest, assigned],
-                                  ['Everyone chooses nearest', 'One landmark per agent']):
+                                  ['Nearest landmark (fixed rule)', second_label]):
         _scene(ax, rollout, len(rollout['positions']) - 1, bounds=bounds)
         ax.set_title(title)
     for rollout, label, color in [(nearest, 'Nearest landmark', '#e16c63'),
-                                  (assigned, 'Centralized assignment', '#238be6')]:
+                                  (assigned, second_label, '#238be6')]:
         axes[2].plot(rollout['history'].step, rollout['history'].team_reward, label=label, color=color, lw=2)
     axes[2].set(xlabel='Environment steps', ylabel='Shared reward per step',
                 title='Same score for all three agents')
-    axes[2].legend(frameon=False, fontsize=9)
+    axes[2].legend(frameon=False, fontsize=8, loc='upper center', bbox_to_anchor=(.5, -.2))
     if save_path is not None:
         fig.savefig(save_path, dpi=180)
     plt.show()

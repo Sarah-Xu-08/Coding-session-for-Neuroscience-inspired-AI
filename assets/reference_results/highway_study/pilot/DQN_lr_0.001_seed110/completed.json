@@ -1,0 +1,47 @@
+{
+  "specification": {
+    "phase": "pilot",
+    "method": "DQN",
+    "seed": 110,
+    "label": "DQN_lr_0.001",
+    "steps": 10000,
+    "eval_every": 2000,
+    "development_seeds": [
+      81000,
+      81001,
+      81002,
+      81003,
+      81004,
+      81005,
+      81006,
+      81007,
+      81008,
+      81009,
+      81010,
+      81011,
+      81012,
+      81013,
+      81014,
+      81015,
+      81016,
+      81017,
+      81018,
+      81019
+    ],
+    "test_seeds": [],
+    "agent_kwargs": {
+      "learning_rate": 0.001
+    },
+    "training_fingerprint": "3dbaf67c37459f92b72e1488b064260f476721fc12d64868fe9eb53204c8ed97"
+  },
+  "training_seconds": 360.47942333307583,
+  "training_cpu_seconds": 257.250865,
+  "elapsed_seconds": 441.4549458329566,
+  "files_sha256": {
+    "training_episodes.csv": "f100a36e8da75b8cd96fb915be5fe6726998c10f081b7735d0eca678d67c034b",
+    "development_episodes.csv": "5345ae8f307f41483f5bf290abd6707b41384a0692b4d8dd53e0a3206a3cb190",
+    "evaluation_checkpoints.csv": "4b3fa7d60e047fa9fda1c851198d89834e46cf9e5f528fa364287a9903e91308",
+    "agent.npz": "c5758aa71776352bd30dc00903bf551050f7a9efc042bb771dd3ddfb0d0beef4",
+    "agent.json": "af3b1cb3bf5ba214b3e5de3b105fa576848bc64fc76bc158d749bfc36ede8b42"
+  }
+}

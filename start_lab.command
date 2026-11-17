@@ -7,4 +7,8 @@ if [[ ! -x "$TASK_DIR/.conda/bin/python" ]]; then
   read '?Press Return to close.'
   exit 1
 fi
-exec "$TASK_DIR/.conda/bin/python" -m jupyterlab notebooks/chapter3_instructor.ipynb --ServerApp.root_dir="$TASK_DIR"
+NOTEBOOK="notebooks/chapter3_student.ipynb"
+if [[ -f "$TASK_DIR/notebooks/chapter3_instructor.ipynb" ]]; then
+  NOTEBOOK="notebooks/chapter3_instructor.ipynb"
+fi
+exec "$TASK_DIR/.conda/bin/python" -m jupyterlab "$NOTEBOOK" --ServerApp.root_dir="$TASK_DIR"

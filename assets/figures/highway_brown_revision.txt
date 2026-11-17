@@ -1,0 +1,6 @@
+Use case: precise-object-edit.
+Asset type: one introductory highway game overview for an RL teaching notebook.
+Edit target: the provided highway illustration.
+Change ONLY the bright blue paint of the lower-centre controlled car and its blue circular "1" marker to warm medium BROWN (#9A5B2F), matching the sandwich cafe palette. Any blue reflections/details on this controlled car must become brown or neutral grey. The circle's numeral stays white.
+Preserve everything else exactly: same wide landscape composition, pure white background, clean thick rounded black line art, all four car positions and road geometry, greyscale other vehicles, trees, dashed lanes, leader lines, title "Highway navigation", label "RL agent", label "Other vehicles", and bottom caption "Choose a lane and speed." Preserve the controlled car's outlines, windows and headlights in black/white/grey. No new objects, text or colours; no blue or pink anywhere.
+Only the RL-controlled car and its numbered marker use brown. All surroundings and all other cars stay greyscale. Return one finished overview image.

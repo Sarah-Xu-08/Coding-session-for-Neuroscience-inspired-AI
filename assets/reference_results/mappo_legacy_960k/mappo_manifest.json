@@ -1,0 +1,82 @@
+{
+  "algorithm": "MAPPO",
+  "library": "skrl",
+  "library_version": "1.4.3",
+  "library_source": "https://github.com/Toni-SM/skrl/tree/1.4.3",
+  "training_seed": 0,
+  "joint_steps": 960000,
+  "individual_actions": 2880000,
+  "num_envs": 16,
+  "settings": {
+    "rollouts": 120,
+    "learning_epochs": 4,
+    "mini_batches": 4,
+    "learning_rate": 0.0003,
+    "discount_factor": 0.99,
+    "lambda": 0.95,
+    "entropy_loss_scale": 0.01,
+    "grad_norm_clip": 0.5,
+    "ratio_clip": 0.2,
+    "value_loss_scale": 1.0,
+    "time_limit_bootstrap": false
+  },
+  "actor": "18 local observation values -> 64 tanh -> 64 tanh -> 5 logits",
+  "critic": "54 global state values -> 64 tanh -> 64 tanh -> 1 value, per agent",
+  "parameter_sharing": false,
+  "local_ratio": 0.0,
+  "n_agents": 3,
+  "max_cycles": 60,
+  "training_layout": "random",
+  "development_seeds": [
+    71000,
+    71001,
+    71002,
+    71003,
+    71004,
+    71005,
+    71006,
+    71007
+  ],
+  "test_seeds": [
+    91000,
+    91001,
+    91002,
+    91003,
+    91004,
+    91005,
+    91006,
+    91007,
+    91008,
+    91009,
+    91010,
+    91011,
+    91012,
+    91013,
+    91014,
+    91015,
+    91016,
+    91017,
+    91018,
+    91019
+  ],
+  "selection": "best mean development team return; greedy categorical evaluation",
+  "reward": "negative sum of each landmark distance to its nearest agent; no shaping",
+  "demo": {
+    "seed": 2026,
+    "layout": "clustered",
+    "selection": "fixed teaching scene, not a generalization estimate"
+  },
+  "versions": {
+    "torch": "2.5.1",
+    "numpy": "1.26.4",
+    "skrl": "1.4.3",
+    "mpe2": "0.0.1",
+    "pettingzoo": "1.25.0"
+  },
+  "seconds": 251.33,
+  "files_sha256": {
+    "mappo.pt": "890c8b1004ab8d18d726d688b41d939906d9064587a315c3609436e2501de07b",
+    "mappo_training.csv": "f11705c7eda6cf1571c11689c0d69892a9d4630f71d2b54154b17337ccd75a0f",
+    "spread_evaluation.csv": "04ff6ee7a95b16541b5adea2022117a72df1a89b9664a8c2ab9097225384c07c"
+  }
+}

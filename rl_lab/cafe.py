@@ -1,66 +1,58 @@
-"""Provided synthetic cafe, tabular storage, evaluation and visualizations."""
+"""One-product Dubai Chewy Cookie café, tabular learning, evaluation and brown result plots."""
 import time
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import BoundaryNorm, ListedColormap
 import gymnasium as gym
 from gymnasium import spaces
-COLORS = {'Q-learning':'#2563a6', 'DQN':'#db7130', 'Rule':'#438c68'}
-#@title Provided café simulator · inspect the state, reward, and action mask
-class DessertCafe(gym.Env):
-    """Small finite-horizon MDP. All money values are synthetic credits.
 
-    State = (time, cookie_stock, cake_stock, remaining_pistachio_units).
-    One portion of either dessert uses one simplified ingredient unit.
-    Prepare now; the portions become available at the next decision time.
-    Both desserts are discarded at closing under this teaching assumption.
+COOKIE_BROWN = '#9a5b2f'
+
+
+class CookieCafe(gym.Env):
+    """State = (hour index, cookie stock). Only customer demand is random.
+
+    Reserve capacity and prepare now; those cookies arrive after this hour's
+    sales, ready for the next hour. Ingredients are always available. There is no
+    cumulative ingredient budget, supplier failure, or second product.
     """
     metadata = {'render_modes': []}
-    ACTIONS = np.array([(0,0), (2,0), (0,2), (4,0), (2,2), (0,4)], dtype=int)
-    NAMES = ['Dubai cookie', 'Pistachio cake']
-    MEANS = np.array([[.3,.5,.7,1.,1.7,3.,4.,3.5],
-                      [.5,1.,3.5,4.,2.,1.,.5,.5]])
+    ACTIONS = np.array([0, 2, 4], dtype=int)
+    # Hourly Poisson means for 10:00–19:00; closing is at 20:00.
+    # A larger lunch peak at noon and a smaller evening peak at 18:00.
+    MEANS = np.array([.5, 1.5, 4., 3., 1.5, .7, 1., 2., 3., 1.2])
+    GAME_ID = 'dubai_cookie_cafe_v1'
+    PRODUCT_NAME = 'Dubai Chewy Cookie'
 
-    def __init__(self, stock_cap=8, ingredient_budget=24,
-                 missed_penalty=0.5, disposal_fee=1.0, substitution=0.25):
-        self.stock_cap = stock_cap
-        self.ingredient_budget = ingredient_budget
-        self.horizon = 8
-        self.missed_penalty = missed_penalty
-        self.disposal_fee = disposal_fee
-        self.substitution = substitution
-        self.price = np.array([6.,7.])
-        self.cost = np.array([3.,4.])
-        self.observation_space = spaces.MultiDiscrete([9, stock_cap+1, stock_cap+1,
-                                                       ingredient_budget+1])
+    def __init__(self, stock_cap=8, opening_stock=2, price=6., cost=3.,
+                 missed_penalty=.5, disposal_fee=1.):
+        if not 0 <= opening_stock <= stock_cap:
+            raise ValueError('Opening stock must be inside the inventory capacity.')
+        self.stock_cap, self.opening_stock = stock_cap, opening_stock
+        self.price, self.cost = price, cost
+        self.missed_penalty, self.disposal_fee = missed_penalty, disposal_fee
+        self.horizon = len(self.MEANS)
+        self.observation_space = spaces.MultiDiscrete([self.horizon + 1, stock_cap + 1])
         self.action_space = spaces.Discrete(len(self.ACTIONS))
-        self.t = 0
-        self.stock = np.array([2,2])
-        self.ingredients = ingredient_budget
+        self.t, self.stock = 0, opening_stock
 
     def observation(self):
-        return np.array([self.t, *self.stock, self.ingredients], dtype=np.int64)
+        return np.array([self.t, self.stock], dtype=np.int64)
 
     def action_mask(self):
-        if self.t >= self.horizon-1:
-            return np.array([True, False, False, False, False, False])
-        return ((self.ACTIONS.sum(axis=1) <= self.ingredients)
-                & np.all(self.ACTIONS + self.stock <= self.stock_cap, axis=1))
+        if self.t >= self.horizon - 1:
+            return np.array([True, False, False])
+        return self.stock + self.ACTIONS <= self.stock_cap
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        self.t = 0
-        self.stock = np.array([2,2], dtype=int)
-        self.ingredients = self.ingredient_budget
-        self.traffic = []
-        # Generate all exogenous arrivals first. Policies evaluated on the same
-        # seed therefore face the SAME customer requests and substitution draws.
-        for t in range(self.horizon):
-            counts = self.np_random.poisson(self.MEANS[:,t])
-            requests = np.repeat([0,1], counts)
-            self.np_random.shuffle(requests)
-            self.traffic.append((requests, self.np_random.random(len(requests))))
+        self.t, self.stock = 0, self.opening_stock
+        # Hidden customer counts, generated before any decisions so equal seeds
+        # produce the same customer day for every policy.
+        self.traffic = self.np_random.poisson(self.MEANS)
         return self.observation(), {'action_mask': self.action_mask()}
 
     def step(self, action):
@@ -68,50 +60,43 @@ class DessertCafe(gym.Env):
             raise RuntimeError('The café is closed; call reset().')
         if not self.action_space.contains(action) or not self.action_mask()[action]:
             raise ValueError(f'Action {action} is infeasible in state {self.observation()}.')
-        old_stock = self.stock.copy()
-        order = self.ACTIONS[action].copy()
-        requests, switches = self.traffic[self.t]
-        demand = np.bincount(requests, minlength=2)
-        sold, missed = np.zeros(2, int), np.zeros(2, int)
-        substituted = 0
-        for preferred, switch in zip(requests, switches):
-            chosen = int(preferred)
-            if self.stock[chosen] == 0:
-                alternative = 1-chosen
-                if switch < self.substitution and self.stock[alternative] > 0:
-                    chosen = alternative
-                    substituted += 1
-                else:
-                    missed[preferred] += 1
-                    continue
-            self.stock[chosen] -= 1
-            sold[chosen] += 1
-        self.ingredients -= int(order.sum())
-        self.stock += order
-        opening_cost = float(np.array([2,2]) @ self.cost) if self.t == 0 else 0.
-        prep_cost = float(order @ self.cost) + opening_cost
-        revenue = float(sold @ self.price)
+        old_stock = self.stock
+        order = int(self.ACTIONS[action])
+        demand = int(self.traffic[self.t])
+        sold = min(old_stock, demand)
+        missed = demand - sold
+        # Preparation always succeeds, but cannot serve the current hour's customers.
+        self.stock = old_stock - sold + order
+        opening_cost = self.opening_stock * self.cost if self.t == 0 else 0.
+        prep_cost = order * self.cost + opening_cost
+        revenue = sold * self.price
         self.t += 1
         terminated = self.t == self.horizon
-        waste = self.stock.copy() if terminated else np.zeros(2, int)
-        disposal = float(waste.sum() * self.disposal_fee)
+        waste = self.stock if terminated else 0
+        disposal = waste * self.disposal_fee
         cash_profit = revenue - prep_cost - disposal
-        reward = cash_profit - self.missed_penalty * int(missed.sum())
+        reward = cash_profit - self.missed_penalty * missed
         info = dict(action_mask=self.action_mask(), inventory=old_stock,
                     produced=order, demand=demand, sales=sold, missed=missed,
-                    waste=waste, substituted=substituted, cash_profit=cash_profit,
-                    revenue=revenue, preparation_cost=prep_cost, disposal=disposal,
-                    next_inventory=self.stock.copy())
+                    waste=waste, cash_profit=cash_profit, revenue=revenue,
+                    preparation_cost=prep_cost, disposal=disposal, next_inventory=self.stock)
         return self.observation(), float(reward), terminated, False, info
 
-#@title Café learner, forecast-based rule, and training helpers
+
+def cafe_model_parameters(env):
+    return dict(stock_cap=env.stock_cap, opening_stock=env.opening_stock,
+                price=env.price, cost=env.cost, missed_penalty=env.missed_penalty,
+                disposal_fee=env.disposal_fee)
+
+
 class CafeQAgent:
-    def __init__(self, env, rules, seed=0, alpha=0.15, gamma=1.0):
+    def __init__(self, env, rules, seed=0, alpha=.15, gamma=1.):
         self.rules = rules
         self.q = np.zeros((*env.observation_space.nvec, env.action_space.n), np.float32)
         self.visits = np.zeros(tuple(env.observation_space.nvec), np.int32)
         self.rng = np.random.default_rng(seed)
         self.alpha, self.gamma = alpha, gamma
+        self.env_kwargs = cafe_model_parameters(env)
 
     def act(self, state, mask, epsilon=0.):
         return self.rules.epsilon_greedy(self.q[tuple(state)], epsilon, self.rng, mask)
@@ -122,15 +107,17 @@ class CafeQAgent:
         self.q[(*key, action)] = self.rules.q_update(self.q[(*key, action)], target, self.alpha)
         self.visits[key] += 1
 
+
 def cafe_rule(state, mask, env):
-    t, cookies, cakes, ingredients = state
-    if t == env.horizon-1:
+    """A transparent forecast-based heuristic, not the model-optimal policy."""
+    t, stock = state
+    if t == env.horizon - 1:
         return 0
-    carry = np.maximum(np.array([cookies,cakes]) - env.MEANS[:,t], 0.)
-    target = env.MEANS[:,t+1] + 0.5
-    # The rule knows the teaching demand pattern; it is a meaningful baseline.
-    costs = np.sum((carry[None,:] + env.ACTIONS - target[None,:])**2, axis=1)
-    return int(np.argmin(np.where(mask, costs, np.inf)))
+    carry = max(stock - env.MEANS[t], 0.)
+    target = env.MEANS[t + 1] + .5
+    distance = (carry + env.ACTIONS - target) ** 2
+    return int(np.argmin(np.where(mask, distance, np.inf)))
+
 
 def cafe_episode(env, policy, seed):
     state, info = env.reset(seed=int(seed))
@@ -138,102 +125,149 @@ def cafe_episode(env, policy, seed):
     for t in range(env.horizon):
         action = policy(state, info['action_mask'])
         nxt, reward, done, truncated, info = env.step(action)
-        rows.append({'hour':10+t, 'action':action, 'reward':reward, **info})
+        rows.append({'hour': 10 + t, 'action': action, 'reward': reward, **info})
         total += reward
         state = nxt
         if done or truncated:
             break
     return total, rows
 
+
 def cafe_evaluate(agent, seeds, env_kwargs=None):
-    env = DessertCafe(**(env_kwargs or {}))
+    config = getattr(agent, 'env_kwargs', {}) if env_kwargs is None else env_kwargs
+    env = CookieCafe(**config)
     records = []
     for seed in seeds:
-        policy = (lambda s,m: agent.act(s,m)) if isinstance(agent,CafeQAgent) else (lambda s,m: cafe_rule(s,m,env))
+        policy = (lambda s, m: cafe_rule(s, m, env)) if agent is None else (lambda s, m: agent.act(s, m))
         ret, rows = cafe_episode(env, policy, seed)
         records.append(dict(return_=ret, profit=sum(r['cash_profit'] for r in rows),
-                            waste=sum(int(r['waste'].sum()) for r in rows),
-                            missed=sum(int(r['missed'].sum()) for r in rows)))
+                            waste=sum(r['waste'] for r in rows), missed=sum(r['missed'] for r in rows)))
     env.close()
     return pd.DataFrame(records)
 
+
 def train_cafe(rules, episodes=1200, seed=0, log_every=100, env_kwargs=None):
-    env = DessertCafe(**(env_kwargs or {}))
-    agent = CafeQAgent(env,rules,seed)
-    schedule_rng = np.random.default_rng(seed+1000)
+    env = CookieCafe(**(env_kwargs or {}))
+    agent = CafeQAgent(env, rules, seed)
+    schedule_rng = np.random.default_rng(seed + 1000)
     history = []
     started = time.perf_counter()
     for episode in range(episodes):
-        epsilon = np.interp(episode,[0,episodes*.75],[.8,.05])
+        epsilon = np.interp(episode, [0, episodes * .75], [.8, .05])
         state, info = env.reset(seed=int(schedule_rng.integers(2**31)))
         total = 0.
         for _ in range(env.horizon):
-            action = agent.act(state,info['action_mask'],epsilon)
-            nxt,reward,done,truncated,info = env.step(action)
-            agent.update(state,action,reward,nxt,done,info['action_mask'])
+            action = agent.act(state, info['action_mask'], epsilon)
+            nxt, reward, done, truncated, info = env.step(action)
+            agent.update(state, action, reward, nxt, done, info['action_mask'])
             total += reward
             state = nxt
-            if done or truncated: break
-        history.append({'episode':episode+1,'return':total,'epsilon':epsilon})
+            if done or truncated:
+                break
+        history.append({'episode': episode + 1, 'return': total, 'epsilon': epsilon})
     env.close()
-    print(f'Café: {episodes:,} days, {episodes*8:,} training transitions, '
-          f'{time.perf_counter()-started:.1f}s; {np.count_nonzero(agent.visits):,} visited states.')
-    return agent,pd.DataFrame(history)
+    print(f'Café: {episodes:,} days, {episodes * env.horizon:,} transitions, '
+          f'{time.perf_counter() - started:.1f}s; {np.count_nonzero(agent.visits):,} visited states.')
+    return agent, pd.DataFrame(history)
 
-#@title Café visualization helpers
-def plot_cafe(agent, history, example_seed=2026, save_dir=None):
-    env = DessertCafe()
-    _, rows = cafe_episode(env,lambda s,m:agent.act(s,m),example_seed)
-    fig, axes = plt.subplots(2,2,figsize=(12,7),layout='constrained')
-    smooth = history['return'].rolling(min(100,len(history)),min_periods=1).mean()
-    axes[0,0].plot(history.episode,smooth,color=COLORS['Q-learning'])
-    axes[0,0].set(xlabel='Training days',ylabel='Exploratory return (credits/day)',
-                  title='Training return · rolling mean')
+
+def plot_cafe(agent, history, example_seed=2026, save_dir=None, reference=None):
+    """Start with one real day; compare recommendations at the SAME observed states."""
+    from .cafe_reference import solve_cafe_reference
+    env = CookieCafe(**agent.env_kwargs)
+    reference = solve_cafe_reference(env) if reference is None else reference
+    _, rows = cafe_episode(env, lambda s, m: agent.act(s, m), example_seed)
     hours = np.array([r['hour'] for r in rows])
-    for item,ax in enumerate([axes[0,1],axes[1,0]]):
-        demand = np.array([r['demand'][item] for r in rows])
-        sales = np.array([r['sales'][item] for r in rows])
-        order = np.array([r['produced'][item] for r in rows])
-        ax.bar(hours-.23,demand,width=.23,label='First-choice demand',alpha=.4)
-        ax.bar(hours,sales,width=.23,label='Actual sales')
-        ax.plot(hours+.23,order,'o--',label='Prepare for next slot')
-        ax.set(xlabel='Decision hour',ylabel='Portions',title=env.NAMES[item])
-        ax.legend(fontsize=8)
-    ax = axes[1,1]
-    waste = np.sum([r['waste'] for r in rows],axis=0)
-    missed = np.sum([r['missed'] for r in rows],axis=0)
-    ax.bar(np.arange(2)-.17,waste,width=.34,label='Closing waste')
-    ax.bar(np.arange(2)+.17,missed,width=.34,label='Missed first-choice requests')
-    ax.set_xticks([0,1],['Dubai cookie','Pistachio cake'])
-    ax.set(ylabel='Portions',title=f'One held-out day · seed {example_seed}')
-    ax.legend(fontsize=8)
+    demand = np.array([r['demand'] for r in rows])
+    stock = np.array([r['inventory'] for r in rows])
+    orders = np.array([r['produced'] for r in rows])
+    model_orders = []
+    for row in rows:
+        env.t, env.stock = row['hour'] - 10, row['inventory']
+        model_orders.append(env.ACTIONS[reference.act(env.observation(), env.action_mask())])
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8), layout='constrained')
+    window = min(100, len(history))
+    axes[0, 0].plot(history.episode, history['return'].rolling(window, min_periods=1).mean(), color='#454545')
+    axes[0, 0].set(title=f'Training reward · rolling {window}-day mean', xlabel='Training days (exploration on)',
+                   ylabel='Reward (credits / day)')
+    axes[0, 1].plot(hours, env.MEANS, 'o-', color=COOKIE_BROWN, lw=2.5, label='Known mean demand')
+    axes[0, 1].bar(hours, demand, width=.45, facecolor='none', edgecolor=COOKIE_BROWN,
+                   hatch='///', label=f'Actual demand · day {example_seed}')
+    axes[0, 1].set(title='Random demand · lunch and evening peaks',
+                   xlabel='Hour', ylabel='Customers', xticks=hours)
+    axes[0, 1].legend(frameon=False, fontsize=9)
+    axes[1, 0].step(hours, stock, where='mid', color=COOKIE_BROWN, lw=2, label='Stock before customers arrive')
+    axes[1, 0].bar(hours, [r['sales'] for r in rows], color=COOKIE_BROWN, alpha=.35,
+                   width=.45, label='Actual sales')
+    axes[1, 0].set(title=f'A real café day · missed {sum(r["missed"] for r in rows)}, closing waste {rows[-1]["waste"]}',
+                   xlabel='Hour', ylabel='Cookies', xticks=hours)
+    # Reserve space below the axes so the legend never covers stock or sales.
+    axes[1, 0].legend(loc='upper left', bbox_to_anchor=(0., -.23), ncol=2,
+                      frameon=False, fontsize=9, borderaxespad=0.)
+    axes[1, 1].plot(hours, orders, 'o-', color=COOKIE_BROWN, lw=2,
+                    label='Learned: prepare now')
+    axes[1, 1].plot(hours, model_orders, 's--', color='#4d3525', lw=1.8,
+                    label='Model-optimal: same hour and stock')
+    axes[1, 1].set(title='What to prepare at each observed state', xlabel='Decision hour (ready next hour)',
+                   ylabel='Cookies to prepare', xticks=hours, yticks=[0, 2, 4], ylim=(-.3, 4.5))
+    axes[1, 1].legend(loc='upper left', bbox_to_anchor=(0., -.23),
+                      frameon=False, fontsize=9, borderaxespad=0.)
+    for ax in axes.flat:
+        ax.grid(axis='y', alpha=.15)
+    fig.suptitle(f'{env.PRODUCT_NAME} café · only demand is uncertain', fontsize=16, weight='bold')
     if save_dir is not None:
         fig.savefig(Path(save_dir) / 'cafe_results.png', dpi=180)
     plt.show()
     env.close()
     return rows
 
-def plot_cafe_policy(agent, ingredients=12, other_stock=2, save_dir=None):
-    env = DessertCafe()
-    fig,axes = plt.subplots(1,2,figsize=(12,4),layout='constrained')
-    for item,ax in enumerate(axes):
-        actions = np.full((9,8),np.nan)
-        for stock in range(9):
-            for t in range(8):
-                pair = [other_stock,other_stock];pair[item]=stock
-                state = np.array([t,*pair,ingredients])
-                if agent.visits[tuple(state)] == 0:continue
-                env.t=t;env.stock=np.array(pair);env.ingredients=ingredients
-                mask=env.action_mask()
-                values=np.where(mask,agent.q[tuple(state)],-np.inf)
-                a=int(np.argmax(values))
-                actions[stock,t]=env.ACTIONS[a,item]
-        cmap=plt.colormaps['Blues'].copy();cmap.set_bad('#e6e6e6')
-        im=ax.imshow(actions,origin='lower',aspect='auto',vmin=0,vmax=4,cmap=cmap)
-        ax.set_xticks(range(8),range(10,18));ax.set_yticks(range(9))
-        ax.set(xlabel='Decision hour',ylabel='Current stock',title=env.NAMES[item])
-        fig.colorbar(im,ax=ax,label='Portions prepared',ticks=[0,2,4])
-    fig.suptitle(f'Policy slices: other stock={other_stock}, ingredients={ingredients}; gray = unvisited')
+
+def plot_cafe_policy(agent, save_dir=None, reference=None):
+    """Full hour-by-stock policy table: no ingredient or other-product slice."""
+    from .cafe_reference import solve_cafe_reference
+    env = CookieCafe(**agent.env_kwargs)
+    reference = solve_cafe_reference(env, gamma=agent.gamma) if reference is None else reference
+    if reference.env_kwargs != agent.env_kwargs or reference.gamma != agent.gamma:
+        raise ValueError('Use a reference with the same game parameters and discount as the agent.')
+    shape = (env.stock_cap + 1, env.horizon)
+    model, learned = np.zeros(shape), np.full(shape, np.nan)
+    records = []
+    for stock in range(env.stock_cap + 1):
+        for t in range(env.horizon):
+            env.t, env.stock = t, stock
+            mask, key = env.action_mask(), (t, stock)
+            optimal_action = reference.act(key, mask)
+            model[stock, t] = env.ACTIONS[optimal_action]
+            visited = bool(agent.visits[key])
+            action = int(np.argmax(np.where(mask, agent.q[key], -np.inf))) if visited else None
+            if visited:
+                learned[stock, t] = env.ACTIONS[action]
+            records.append(dict(hour=10 + t, stock=stock, visits=int(agent.visits[key]),
+                                reachable_from_default_opening=bool(reference.reachable[key]),
+                                model_action=optimal_action, model_prepare=int(env.ACTIONS[optimal_action]),
+                                learned_action=action, learned_prepare=int(env.ACTIONS[action]) if visited else None,
+                                optimal_action_value_gap=(reference.values[key] - reference.q[(*key, action)])
+                                if visited else np.nan))
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5), layout='constrained', sharex=True, sharey=True)
+    cmap = ListedColormap(['#fbf1e7', '#d5a57a', COOKIE_BROWN])
+    cmap.set_bad('white')
+    norm = BoundaryNorm([-1, 1, 3, 5], cmap.N)
+    for column, (ax, data) in enumerate(zip(axes, [model, learned])):
+        im = ax.imshow(data, origin='lower', aspect='auto', cmap=cmap, norm=norm)
+        for stock in range(env.stock_cap + 1):
+            for t in range(env.horizon):
+                value = data[stock, t]
+                ax.text(t, stock, '?' if np.isnan(value) else str(int(value)), ha='center', va='center',
+                        color='white' if value == 4 else '#392b21', fontsize=10)
+        ax.set(xticks=range(env.horizon), xticklabels=range(10, 10 + env.horizon),
+               yticks=range(env.stock_cap + 1), xlabel='Decision hour', ylabel='Cookies currently in stock',
+               title='Model-optimal · known demand distribution' if column == 0 else 'Learned Q-table · greedy choice')
+    fig.colorbar(im, ax=axes, ticks=[0, 2, 4], shrink=.85, label='Cookies to prepare now')
+    fig.suptitle('At this hour, with this stock, how many cookies should we prepare?', fontsize=14, weight='bold')
+    fig.supxlabel('Numbers = portions to prepare.  ? = no training update for that state; it does not mean actions are forbidden.',
+                  fontsize=10)
     if save_dir is not None:
         fig.savefig(Path(save_dir) / 'cafe_policy.png', dpi=180)
-    plt.show();env.close()
+    plt.show()
+    env.close()
+    return pd.DataFrame(records)

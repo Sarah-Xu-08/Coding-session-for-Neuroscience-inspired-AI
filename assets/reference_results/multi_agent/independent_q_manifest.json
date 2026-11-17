@@ -1,0 +1,44 @@
+{
+  "algorithm": "Independent Q-learning",
+  "training_seed": 0,
+  "episodes": 3000,
+  "rounds": 20,
+  "joint_decisions": 60000,
+  "state": [
+    "rounds_remaining",
+    "own_previous_action",
+    "partner_previous_action"
+  ],
+  "alpha": 0.15,
+  "gamma": 0.95,
+  "epsilon_start": 0.5,
+  "epsilon_end": 0.03,
+  "training": "two separate Q-tables, each updated from its own payoff; simultaneous choices",
+  "evaluation": "frozen Q-tables; epsilon=0; all matchups use 20 rounds",
+  "selection": "final checkpoint; no model selection",
+  "evaluation_rng_states": [
+    {
+      "bit_generator": "PCG64",
+      "state": {
+        "state": 184103898292124050170979863696073361856,
+        "inc": 87136372517582989555478159403783844777
+      },
+      "has_uint32": 0,
+      "uinteger": 4266726468
+    },
+    {
+      "bit_generator": "PCG64",
+      "state": {
+        "state": 10245038055081278398604081063224798047,
+        "inc": 30008503642980956324491363429807189605
+      },
+      "has_uint32": 0,
+      "uinteger": 3657403667
+    }
+  ],
+  "files_sha256": {
+    "independent_q.json": "185c4db7a6179be0aa6120c6ba0de977601cb94d9b56d86ffad65c02608430cb",
+    "independent_q_training.csv": "570945b0436d44d22029ae3d705fdd8f7f1716ef03da11ccfa20e4d85df9e55f",
+    "independent_q_selfplay.csv": "c3995e46e8a823153aa26b33c58e5c858f008816b978f9ac39c7f8f1bb0b84a7"
+  }
+}

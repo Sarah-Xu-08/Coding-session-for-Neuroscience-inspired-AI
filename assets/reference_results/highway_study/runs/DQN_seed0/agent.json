@@ -1,0 +1,35 @@
+{
+  "config": {
+    "lanes_count": 3,
+    "vehicles_count": 18,
+    "duration": 30,
+    "observation": {
+      "type": "Kinematics",
+      "vehicles_count": 5,
+      "features": [
+        "presence",
+        "x",
+        "y",
+        "vx",
+        "vy"
+      ],
+      "absolute": false,
+      "normalize": false,
+      "clip": false,
+      "order": "sorted"
+    },
+    "action": {
+      "type": "DiscreteMetaAction"
+    },
+    "simulation_frequency": 5,
+    "policy_frequency": 1
+  },
+  "sha256": "10931d59e5f01fb4b087f7e573f0156c39e4a8c076396712e5d12307a2583229",
+  "training_steps": 50000,
+  "training_seed": 0,
+  "method": "DQN",
+  "agent_kwargs": {
+    "learning_rate": 0.001
+  },
+  "training_fingerprint": "3dbaf67c37459f92b72e1488b064260f476721fc12d64868fe9eb53204c8ed97"
+}

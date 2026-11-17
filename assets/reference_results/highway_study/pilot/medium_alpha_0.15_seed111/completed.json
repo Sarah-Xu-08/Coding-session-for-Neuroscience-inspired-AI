@@ -1,0 +1,47 @@
+{
+  "specification": {
+    "phase": "pilot",
+    "method": "medium",
+    "seed": 111,
+    "label": "medium_alpha_0.15",
+    "steps": 10000,
+    "eval_every": 2000,
+    "development_seeds": [
+      81000,
+      81001,
+      81002,
+      81003,
+      81004,
+      81005,
+      81006,
+      81007,
+      81008,
+      81009,
+      81010,
+      81011,
+      81012,
+      81013,
+      81014,
+      81015,
+      81016,
+      81017,
+      81018,
+      81019
+    ],
+    "test_seeds": [],
+    "agent_kwargs": {
+      "alpha": 0.15
+    },
+    "training_fingerprint": "3dbaf67c37459f92b72e1488b064260f476721fc12d64868fe9eb53204c8ed97"
+  },
+  "training_seconds": 366.4665833340259,
+  "training_cpu_seconds": 257.303069,
+  "elapsed_seconds": 415.3228218340082,
+  "files_sha256": {
+    "training_episodes.csv": "8c783f0debd85452e5a5366e8c708e450011a63a48c743981b89fe8bef9521f6",
+    "development_episodes.csv": "f741327044f91108cf27c2290c6299f561c8663552efcab8f4b8767a77d6eea3",
+    "evaluation_checkpoints.csv": "24654cbf80923cff1212f7cb103d4ba8ac2a0379253a45cbc91a37b9eb97e50b",
+    "agent.npz": "8180795af75f7fb4d4202dde5d71764543fde8f6dea79664a81dca02d1287f56",
+    "agent.json": "b1a7ee69f171dc5e20abeab8e6dd839006d81a2dcc921c8fc66aa6916b642fba"
+  }
+}

@@ -13,4 +13,6 @@ from instructor_definitions import load
 
 @pytest.fixture(scope='session')
 def definitions():
+    if not (ROOT/'notebooks/chapter3_instructor.ipynb').exists():
+        pytest.skip('Requires the local instructor notebook, excluded from Git.')
     return load()

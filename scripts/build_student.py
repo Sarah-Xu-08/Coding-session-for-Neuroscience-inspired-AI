@@ -17,6 +17,9 @@ def student_notebook(source):
         alternate = cell.metadata.pop('student_source', None)
         if alternate is not None:
             cell.source = alternate
+            # Student TODOs must be visible regardless of instructor display settings.
+            if cell.cell_type == 'code':
+                cell.metadata.get('jupyter', {}).pop('source_hidden', None)
         if cell.cell_type == 'code':
             cell.outputs = []
             cell.execution_count = None

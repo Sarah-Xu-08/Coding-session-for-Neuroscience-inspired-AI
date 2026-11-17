@@ -9,3 +9,13 @@ results/*
 !results/.gitkeep
 .jupyter/
 .cache/
+
+# Instructor materials stay on the recording machine.
+/notebooks/*instructor*.ipynb
+/instructor*.md
+/instructor*.pdf
+/AGENTS.md
+
+# Local exports and temporary rendering files.
+/output/
+/tmp/

@@ -13,27 +13,210 @@
   },
   "generated_utc": "2026-10-31T07:35:25Z",
   "cafe": {
+    "game": "dubai_cookie_cafe_v1",
+    "state": [
+      "hour",
+      "stock"
+    ],
+    "q_shape": [
+      11,
+      9,
+      3
+    ],
     "episodes": 60000,
     "seed": 0,
     "evaluation_seeds": [
       20000,
       20099
-    ]
+    ],
+    "demand_means": [
+      0.5,
+      1.5,
+      4.0,
+      3.0,
+      1.5,
+      0.7,
+      1.0,
+      2.0,
+      3.0,
+      1.2
+    ],
+    "selling_hours": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "closing_hour": 20,
+    "only_uncertainty": "Poisson customer counts",
+    "preparation_reliable": true,
+    "env_config": {
+      "stock_cap": 8,
+      "opening_stock": 2,
+      "price": 6.0,
+      "cost": 3.0,
+      "missed_penalty": 0.5,
+      "disposal_fee": 1.0
+    },
+    "optimal_expected_return": 44.24101570381248,
+    "generated_utc": "2026-10-31T10:30:03Z",
+    "product": "Dubai Chewy Cookie",
+    "product_label_revision": {
+      "previous_game_id": "sandwich_cafe_v2",
+      "numerical_model_changed": false,
+      "checkpoint_q_and_visits_unchanged": true,
+      "updated_utc": "2026-10-31T11:11:56Z"
+    }
   },
   "highway": {
-    "steps_per_method": 2000,
+    "experiment_id": "highway_episode_study_v1",
+    "steps_per_method": 50000,
     "training_seeds": [
-      0
+      0,
+      1,
+      2,
+      3,
+      4
     ],
     "development_seeds": [
-      81000,
-      81001,
-      81002
+      82000,
+      82001,
+      82002,
+      82003,
+      82004,
+      82005,
+      82006,
+      82007,
+      82008,
+      82009,
+      82010,
+      82011,
+      82012,
+      82013,
+      82014,
+      82015,
+      82016,
+      82017,
+      82018,
+      82019
     ],
-    "heldout_seeds": [
-      91000,
-      91009
-    ]
+    "test_seeds": [
+      93000,
+      93001,
+      93002,
+      93003,
+      93004,
+      93005,
+      93006,
+      93007,
+      93008,
+      93009,
+      93010,
+      93011,
+      93012,
+      93013,
+      93014,
+      93015,
+      93016,
+      93017,
+      93018,
+      93019,
+      93020,
+      93021,
+      93022,
+      93023,
+      93024,
+      93025,
+      93026,
+      93027,
+      93028,
+      93029,
+      93030,
+      93031,
+      93032,
+      93033,
+      93034,
+      93035,
+      93036,
+      93037,
+      93038,
+      93039,
+      93040,
+      93041,
+      93042,
+      93043,
+      93044,
+      93045,
+      93046,
+      93047,
+      93048,
+      93049,
+      93050,
+      93051,
+      93052,
+      93053,
+      93054,
+      93055,
+      93056,
+      93057,
+      93058,
+      93059,
+      93060,
+      93061,
+      93062,
+      93063,
+      93064,
+      93065,
+      93066,
+      93067,
+      93068,
+      93069,
+      93070,
+      93071,
+      93072,
+      93073,
+      93074,
+      93075,
+      93076,
+      93077,
+      93078,
+      93079,
+      93080,
+      93081,
+      93082,
+      93083,
+      93084,
+      93085,
+      93086,
+      93087,
+      93088,
+      93089,
+      93090,
+      93091,
+      93092,
+      93093,
+      93094,
+      93095,
+      93096,
+      93097,
+      93098,
+      93099
+    ],
+    "eval_every": 1000,
+    "ema_alpha": 0.1,
+    "dqn_kwargs": {
+      "learning_rate": 0.001
+    },
+    "table_kwargs": {
+      "alpha": 0.3
+    },
+    "folder": "highway_study"
   },
   "reference_dqn": {
     "source": "supplied notebook checkpoint",
@@ -53,5 +236,27 @@
   },
   "generation_seconds": 8.4732011660235,
   "reused_training_files_for_checkpoint_reevaluation": true,
-  "limitations": "One training seed. Short comparison is for teaching, not algorithm superiority."
+  "limitations": "One fixed environment; five training seeds. SD bands describe run variation, not confidence intervals. Concurrent elapsed training times depend on system load.",
+  "legacy_highway": {
+    "steps_per_method": 2000,
+    "training_seeds": [
+      0
+    ],
+    "development_seeds": [
+      81000,
+      81001,
+      81002
+    ],
+    "heldout_seeds": [
+      91000,
+      91009
+    ]
+  },
+  "notebook_highway_study": "highway_sb3_study/manifest.json",
+  "highway_sb3": {
+    "experiment_id": "highway_sb3_study_v1",
+    "dqn_implementation": "stable_baselines3.DQN",
+    "folder": "highway_sb3_study",
+    "manifest": "highway_sb3_study/manifest.json"
+  }
 }

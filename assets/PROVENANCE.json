@@ -2,8 +2,24 @@
   "source_notebook": "chapter3_rl_cafe_highway_social_games.ipynb",
   "source_sha256": "1ebbec7466322bab512ccc57d9c64209b476553174c01918c2a184b444b8d8c8",
   "upstream_games_commit": "f42dfe8516f5d1290d9076e2563e99f2770d46bf",
-  "cafe": "Synthetic teaching environment from the supplied notebook; no market data.",
-  "figures": "PNG overview illustrations generated with the built-in image_gen tool using the user's supplied line-art image as a style reference. Black/white/grey context with selective blue/pink highlights. The cafe demand curves are qualitative schematics; Prisoner's Dilemma payoff labels match the upstream matrix. These are conceptual illustrations, not rollout screenshots or measured plots.",
+  "cafe": "Synthetic Dubai Chewy Cookie caf\u00e9 adapted from the original teaching environment. State: hour and cookie stock; Poisson customer demand is the only uncertainty; preparation always succeeds; no ingredient budget. Selling hours 10:00\u201319:00, closing 20:00. Assumed demand peaks at 12:00 (4 customers/hour) and 18:00 (3 customers/hour). Product-label revision only: prices, demand, dynamics, measured results and checkpoint Q/visit arrays are unchanged. These are teaching assumptions, not real sales or market data.",
+  "figures": "PNG overview illustrations generated with the built-in image_gen tool using the user's supplied line-art image as a style reference. Black/white/grey context with a brown Dubai Chewy Cookie/demand curve in the cafe, a brown RL-controlled car in highway, and selective blue/pink highlights in the social games. The cafe demand curve is a qualitative schematic; Prisoner's Dilemma payoff labels match the upstream matrix. These are conceptual illustrations, not rollout screenshots or measured plots.",
   "figure_prompts": "figures/prompts.json",
-  "simple_spread": "MPE2 0.0.1 installed from official PyPI; N=3, local_ratio=0.0, discrete actions, 60 steps. Upstream physics and reward are unmodified. The clustered start and centralized hand-coded controllers are teaching fixtures."
+  "simple_spread": "MPE2 0.0.1 installed from official PyPI; N=3, local_ratio=0.0, discrete actions, 60 steps. Upstream physics and reward are unmodified. The clustered start is a teaching fixture. Fixed nearest steering and centralized assignment are labelled references; learned MAPPO uses skrl 1.4.3.",
+  "highway_rendering": "Actual HighwayEnv RGB pixels rendered on an offscreen surface. The project wrapper enables drawing under the SDL dummy driver; only vehicle colours are changed (controlled car brown, other traffic grey). Simulation, observations, rewards, cached comparison measurements and the supplied DQN checkpoint are unchanged.",
+  "highway_sb3_study": {
+    "implementation": "stable_baselines3.DQN",
+    "manifest": "reference_results/highway_sb3_study/manifest.json",
+    "historical_manifest": "reference_results/highway_study/manifest.json",
+    "note": "Five new SB3 DQN models; verified tabular/baseline records reused. Historical hand-coded cache preserved."
+  },
+  "multi_agent_learning": {
+    "independent_q": "reference_results/multi_agent/independent_q_manifest.json",
+    "mappo": "reference_results/multi_agent/mappo_manifest.json",
+    "library_source": "https://github.com/Toni-SM/skrl/tree/1.4.3",
+    "note": "Genuine locally trained policies; notebooks load frozen policies. MAPPO learning uses installed skrl 1.4.3. The improved model shares parameters, appends distances derived only from existing observations, and uses library time-limit bootstrapping. Three development configurations used 3,000,000 joint steps each; selected checkpoint at 2,400,960 steps of the chosen run. Final evaluation on 50 reserved starts followed selection. Original reward and physics are unchanged; the clustered recording scene was practiced during training. Previous model and integration source remain separately archived.",
+    "mappo_previous": "reference_results/mappo_legacy_960k/mappo_manifest.json",
+    "mappo_development_search": "reference_results/multi_agent/development_search.json",
+    "mappo_matched_before_after": "reference_results/multi_agent/mappo_before_after.csv"
+  }
 }

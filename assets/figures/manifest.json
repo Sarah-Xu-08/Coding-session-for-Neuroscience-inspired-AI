@@ -1,21 +1,21 @@
 {
   "method": "Built-in image_gen; generated PNGs copied without retouching or recompression.",
-  "style": "Black/white/grey line art with selective blue/pink highlights.",
-  "cafe_plot": "Qualitative demand schematic, not sampled or measured data.",
+  "style": "Black/white/grey line art; brown Dubai Chewy Cookie/curve in cafe and controlled car in highway, blue/pink accents in the social games.",
+  "cafe_plot": "Qualitative demand schematic: larger peak at 12:00, smaller peak at 18:00, closes 20:00; not sampled or measured data.",
   "files": {
     "task_cafe.png": {
       "dimensions": [
         1672,
         941
       ],
-      "sha256": "8efdadf15ab4a4f6f9811e1ab551b825669e3d43f2a039fdd133213d2700eb93"
+      "sha256": "eca3feb974da17b7dd4428e394d1bd0e1963f81bb6429e1f9fc8405707ea6c6d"
     },
     "task_highway.png": {
       "dimensions": [
         1672,
         941
       ],
-      "sha256": "fc609a8ee19926dd94c7214812e00029c62ab7a6c592628d7d23e99b2e243e04"
+      "sha256": "0cdafeb676da598b1ade9341c117bab92b03f132cd510e8395c94849ecc4cf6b"
     },
     "task_prisoners_dilemma.png": {
       "dimensions": [

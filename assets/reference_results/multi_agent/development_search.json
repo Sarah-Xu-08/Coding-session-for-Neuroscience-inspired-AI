@@ -1,0 +1,83 @@
+{
+  "selection": "development return only",
+  "candidates": [
+    {
+      "configuration": "Shared actor, LayerNorm, value normalization",
+      "format_version": 2,
+      "training_seed": 0,
+      "joint_steps": 3000000,
+      "selected_joint_steps": 2400960,
+      "best_development_return": -85.53446773800604,
+      "settings": {
+        "rollouts": 60,
+        "learning_epochs": 10,
+        "mini_batches": 1,
+        "learning_rate": 0.0005,
+        "discount_factor": 0.99,
+        "lambda": 0.95,
+        "entropy_loss_scale": 0.01,
+        "grad_norm_clip": 10.0,
+        "ratio_clip": 0.2,
+        "clip_predicted_values": true,
+        "value_clip": 0.2,
+        "value_loss_scale": 1.0,
+        "time_limit_bootstrap": false
+      },
+      "curve": "development_2.csv",
+      "selected": false,
+      "test_evaluated": false
+    },
+    {
+      "configuration": "Shared actor, time-limit bootstrap, scaled rewards, unclipped critic",
+      "format_version": 3,
+      "training_seed": 0,
+      "joint_steps": 3000000,
+      "selected_joint_steps": 2640960,
+      "best_development_return": -43.227729526827446,
+      "settings": {
+        "rollouts": 60,
+        "learning_epochs": 10,
+        "mini_batches": 1,
+        "learning_rate": 0.0003,
+        "discount_factor": 0.99,
+        "lambda": 0.95,
+        "entropy_loss_scale": 0.02,
+        "grad_norm_clip": 0.5,
+        "ratio_clip": 0.2,
+        "clip_predicted_values": false,
+        "value_clip": 1000000.0,
+        "value_loss_scale": 1.0,
+        "time_limit_bootstrap": true
+      },
+      "curve": "development_3.csv",
+      "selected": false,
+      "test_evaluated": false
+    },
+    {
+      "configuration": "Shared actor, bootstrap/scaling, descriptive local distance features",
+      "format_version": 4,
+      "training_seed": 0,
+      "joint_steps": 3000000,
+      "selected_joint_steps": 2400960,
+      "best_development_return": -26.094967548160263,
+      "settings": {
+        "rollouts": 60,
+        "learning_epochs": 10,
+        "mini_batches": 1,
+        "learning_rate": 0.0003,
+        "discount_factor": 0.99,
+        "lambda": 0.95,
+        "entropy_loss_scale": 0.02,
+        "grad_norm_clip": 0.5,
+        "ratio_clip": 0.2,
+        "clip_predicted_values": false,
+        "value_clip": 1000000.0,
+        "value_loss_scale": 1.0,
+        "time_limit_bootstrap": true
+      },
+      "curve": "development_4.csv",
+      "selected": true,
+      "test_evaluated": true
+    }
+  ]
+}

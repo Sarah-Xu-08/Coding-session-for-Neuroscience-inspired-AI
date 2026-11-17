@@ -2,13 +2,13 @@
 import numpy as np
 import pandas as pd
 import ipywidgets as widgets
-from IPython.display import display, clear_output
-from .cafe import DessertCafe
+from IPython.display import display, clear_output, Markdown
+from .cafe import CookieCafe
 from .social import social_match
 from .spread import spread_rollout, plot_spread_frame, spread_bounds
 
 def cafe_controls(seed=2026):
-    env=DessertCafe()
+    env=CookieCafe()
     output=widgets.Output()
     action=widgets.Dropdown(description='Prepare:')
     advance=widgets.Button(description='Serve this hour',button_style='primary')
@@ -18,13 +18,13 @@ def cafe_controls(seed=2026):
         mask=env.action_mask()
         valid=[int(a) for a in np.flatnonzero(mask)]
         previous_action=action.value
-        action.options=[(str(tuple(env.ACTIONS[a])),a) for a in valid]
+        action.options=[(f"{int(env.ACTIONS[a])} cookies",a) for a in valid]
         action.value=previous_action if previous_action in valid else valid[0]
         advance.disabled=env.t>=env.horizon
         with output:
             clear_output(wait=True)
             if env.t < env.horizon:
-                print(f'{10+env.t}:00 | stock {tuple(env.stock)} | ingredients {env.ingredients}')
+                print(f'{10+env.t}:00 | {env.PRODUCT_NAME} stock: {env.stock}')
                 print('Choose before seeing this hour’s arrivals. Preparation is available NEXT hour.')
             else:print('Closed. Reset to try the same customer day again.')
             print(f'Cumulative reward: {total:.1f} credits')
@@ -35,8 +35,8 @@ def cafe_controls(seed=2026):
         total+=reward
         show()
         with output:
-            print(f'Completed hour: demand {tuple(info["demand"])}, sales {tuple(info["sales"])}')
-            print(f'Prepared {tuple(info["produced"])}, missed {tuple(info["missed"])}, waste {tuple(info["waste"])}')
+            print(f'Completed hour: demand {info["demand"]}, sales {info["sales"]}')
+            print(f'Prepared {info["produced"]}, missed {info["missed"]}, waste {info["waste"]}')
             print(f'Cash profit this hour: {info["cash_profit"]:.1f}; reward: {reward:.1f}')
     def restart(_=None):
         nonlocal total
@@ -45,28 +45,35 @@ def cafe_controls(seed=2026):
     display(widgets.VBox([widgets.HBox([action,advance,reset]),output]))
     return {'env':env,'action':action,'advance':advance,'reset':reset}
 
-def dilemma_controls(tit_for_tat):
+def dilemma_controls(tit_for_tat, learned=None):
     options=[('Always cooperate','always_cooperate'),('Always defect','always_defect'),('Tit-for-tat',tit_for_tat)]
+    if learned is not None:
+        options += [('Independent Q: trained A',learned[0]),('Independent Q: trained B',learned[1])]
     a=widgets.Dropdown(options=options,description='Player A:')
     b=widgets.Dropdown(options=options,description='Player B:')
-    run=widgets.Button(description='Play 10 rounds',button_style='primary')
+    rounds=20 if learned is not None else 10
+    run=widgets.Button(description=f'Play {rounds} rounds',button_style='primary')
     output=widgets.Output()
     def play(_):
         with output:
             clear_output(wait=True)
-            frame=social_match('prisoners_dilemma',a.value,b.value,nrounds=10)
+            frame=social_match('prisoners_dilemma',a.value,b.value,nrounds=rounds,learn=False)
             display(frame)
             print('Mean payoffs:',frame[['reward_a','reward_b']].mean().round(2).to_dict())
     run.on_click(play)
     display(widgets.VBox([widgets.HBox([a,b,run]),output]))
     return {'a':a,'b':b,'run':run}
 
-def spread_controls(team_reward, nearest=None, assigned=None):
+def spread_controls(team_reward, nearest=None, assigned=None, learned=None):
     rollouts = {'nearest': nearest if nearest is not None else spread_rollout('nearest'),
                 'assignment': assigned if assigned is not None else spread_rollout('assignment')}
+    options=[('Everyone chooses nearest (fixed)','nearest'),
+             ('Centralized assignment (fixed)','assignment')]
+    if learned is not None:
+        rollouts['mappo']=learned
+        options.insert(1,('MAPPO (skrl, learned)','mappo'))
     bounds=spread_bounds(*rollouts.values())
-    strategy=widgets.Dropdown(options=[('Everyone chooses nearest','nearest'),
-                                       ('Cover different landmarks','assignment')],
+    strategy=widgets.Dropdown(options=options,
                               value='nearest', description='Strategy:')
     slider=widgets.IntSlider(value=0,min=0,max=min(len(r['positions']) for r in rollouts.values())-1,
                              description='Step:',continuous_update=False)
@@ -77,6 +84,7 @@ def spread_controls(team_reward, nearest=None, assigned=None):
         with output:
             clear_output(wait=True)
             plot_spread_frame(rollouts[strategy.value],slider.value,team_reward,bounds=bounds)
+            display(Markdown('**Read the plot:** The agents share one score; a reward closer to zero means more complete landmark coverage.'))
     slider.observe(draw,names='value')
     strategy.observe(draw,names='value')
     draw()

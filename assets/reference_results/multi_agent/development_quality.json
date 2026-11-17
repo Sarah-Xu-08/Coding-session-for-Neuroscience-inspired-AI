@@ -1,0 +1,16 @@
+{
+  "mean_development_return": -26.094967548160263,
+  "mean_development_final_reward": -0.18676426991642667,
+  "mean_development_landmarks_within_02": 3.0,
+  "development_max_agent_radius": 1.402844849572509,
+  "teaching_return": -26.242824721551433,
+  "teaching_final_reward": -0.10807251858661426,
+  "teaching_covered_landmarks": 3,
+  "teaching_max_radius": 1.1715374513859982,
+  "readiness_requirements": {
+    "mean_development_return_above": -40,
+    "mean_development_landmarks_within_02_at_least": 2.5,
+    "teaching_covered_landmarks": 3,
+    "teaching_max_radius_below": 3
+  }
+}

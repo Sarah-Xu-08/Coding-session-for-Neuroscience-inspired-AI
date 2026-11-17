@@ -1,0 +1,77 @@
+{
+  "training_fingerprint": "3dbaf67c37459f92b72e1488b064260f476721fc12d64868fe9eb53204c8ed97",
+  "steps_per_policy": 10000,
+  "training_seeds": [
+    110,
+    111
+  ],
+  "development_seeds": [
+    81000,
+    81001,
+    81002,
+    81003,
+    81004,
+    81005,
+    81006,
+    81007,
+    81008,
+    81009,
+    81010,
+    81011,
+    81012,
+    81013,
+    81014,
+    81015,
+    81016,
+    81017,
+    81018,
+    81019
+  ],
+  "test_seeds_used": [],
+  "selection_rule": "Highest mean development reward over the last three checkpoints and both training seeds; crash rate breaks ties.",
+  "candidates": [
+    {
+      "method": "DQN",
+      "label": "DQN_lr_0.001",
+      "agent_kwargs": {
+        "learning_rate": 0.001
+      },
+      "development_reward": 17.26668174560658,
+      "development_crash_rate": 0.4166666666666667
+    },
+    {
+      "method": "DQN",
+      "label": "DQN_lr_0.0003",
+      "agent_kwargs": {
+        "learning_rate": 0.0003
+      },
+      "development_reward": 13.562391209990468,
+      "development_crash_rate": 0.625
+    },
+    {
+      "method": "medium",
+      "label": "medium_alpha_0.15",
+      "agent_kwargs": {
+        "alpha": 0.15
+      },
+      "development_reward": 8.554931486533336,
+      "development_crash_rate": 0.9750000000000001
+    },
+    {
+      "method": "medium",
+      "label": "medium_alpha_0.3",
+      "agent_kwargs": {
+        "alpha": 0.3
+      },
+      "development_reward": 8.881424671072846,
+      "development_crash_rate": 0.9583333333333334
+    }
+  ],
+  "dqn_kwargs": {
+    "learning_rate": 0.001
+  },
+  "table_kwargs": {
+    "alpha": 0.3
+  },
+  "table_note": "Medium bins tuned; the selected alpha is also used for the coarse/fine sensitivity checks."
+}

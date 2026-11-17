@@ -1,0 +1,10 @@
+Use case: precise-object-edit.
+Asset type: introductory educational cafe overview for an RL notebook.
+Edit target: the provided single-sandwich cafe illustration.
+Change the one product to "Dubai Chewy Cookie". Replace the triangular sandwich with EXACTLY ONE round, thick, domed Dubai chewy cookie on the SAME one plate. Depict a cocoa-brown chewy shell with a small front cutaway showing dense finely shredded filling using black/grey line texture; the cutaway is part of the same cookie, not an extra cookie or separate food. This is a filled round confection, not a flat chocolate-chip biscuit. Keep the illustration simple, charming and readable.
+Replace the top title with exactly "Dubai Chewy Cookie cafe", fitting it cleanly on one centred line. Replace the plate callout with "1 Cookie" in brown. Replace the graph's "Sandwich" label with "Dubai Chewy Cookie" in brown, split over two lines if needed, with a small pointer to the existing single curve.
+Preserve the single friendly monochrome robot, rounded head and antenna, black visor and white smile, apron, counter, pure white background, greyscale cafe furnishings, thick rounded black monoline style, wide composition, and plate. No human, no hat, no extra products.
+Preserve the graph exactly: ONE brown curve with a larger 12:00 peak and a smaller 18:00 peak, low afternoon valley; grey ticks "10:00", "12:00", "18:00", "20:00"; grey "Hour" label; title "Demand pattern (schematic)". These are illustrative teaching assumptions, not market measurements.
+Keep the bottom caption exactly "Prepare now. Sell next hour."
+Palette: only the cookie shell, its "1 Cookie" callout, the demand curve and its product label are warm brown (#9A5B2F). Even the cookie filling stays black/grey/white; no green, blue, pink or other accent colours. Keep all other contextual text, axes and scene elements greyscale.
+Return one completed clean illustration.
