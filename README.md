@@ -1,5 +1,8 @@
 # Neuroscience-inspired AI · Chapter 3 coding lab
 
+Materials for the online coding session for **Neuroscience-inspired AI
+(BCS.50041 and DS.60064)** at **KAIST**, **Fall 2026**.
+
 A hands-on reinforcement learning session covering Q-learning in a cookie café,
 DQN and Stable-Baselines3 for highway driving, and multi-agent coordination with
 MAPPO. Prisoner's Dilemma is an optional appendix activity.
