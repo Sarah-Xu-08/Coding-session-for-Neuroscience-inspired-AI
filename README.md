@@ -53,6 +53,16 @@ been validated. Run the environment check above on your machine.
 
 ## Follow the lesson
 
+In this session, you will:
+
+1. Learn **tabular Q-learning** in the Cookie café (Task 1).
+2. Hand-code a **DQN learning step** for highway driving (Tasks 2–3).
+3. Use **Stable-Baselines3 DQN** and evaluate driving policies.
+4. Explore **library MAPPO**, shared rewards and credit assignment in Simple Spread.
+
+Optional self-study: explore conflicting individual incentives in **Prisoner's
+Dilemma (Appendix A.4)**.
+
 Run cells in order. Fill each task's marked `...`, run the function cell, then run
 its check. Unfinished tasks intentionally raise `NotImplementedError`; use Run All
 after completing Tasks 1–3. Appendix exercises are optional.
